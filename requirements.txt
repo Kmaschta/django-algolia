@@ -5,3 +5,4 @@ South>=1.0.2
 
 # Test requirements
 pytest>=2.7.0
+flake8>=2.4.0

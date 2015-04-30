@@ -82,7 +82,7 @@ class AlgoliaIndexer(object):
             )
         return self.client
 
-    def _get_index_name(self, instance=None, model=None):
+    def _get_index_name(self, instance=None, model=None, with_suffix=True):
         """Return the name of index for a specific instance or model"""
         if instance and not model:
             model = instance.__class__
@@ -91,7 +91,14 @@ class AlgoliaIndexer(object):
         else:
             raise ValueError('You must specify instance or model')
 
-        return getattr(model, 'ALGOLIA_INDEX', model.__name__)
+        index_name = getattr(model, 'ALGOLIA_INDEX', model.__name__)
+
+        # By default, add a suffix to index name
+        # Useful to dissociate production indexes from tests indexes
+        if with_suffix and self.configs.get('SUFFIX_MY_INDEX', True):
+            index_name = index_name + self.configs.get('INDEX_SUFFIX', 'DjangoAlgolia')
+
+        return index_name
 
     def get_index(self, instance=None, model=None, index_name=None, with_suffix=True):
         """Useful to dissociate the production indexes and the test indexes
@@ -103,12 +110,7 @@ class AlgoliaIndexer(object):
             get_index(index_name='MyAlgoliaIndex')
         """
         if not index_name:
-            index_name = self._get_index_name(instance, model)
-
-        # By default, add a suffix to index name
-        # Useful to dissociate production indexes from tests indexes
-        if with_suffix and self.configs.get('SUFFIX_MY_INDEX', True):
-            index_name = index_name + self.configs.get('INDEX_SUFFIX', 'DjangoAlgolia')
+            index_name = self._get_index_name(instance, model, with_suffix=with_suffix)
 
         return self.get_client().init_index(index_name)
 
