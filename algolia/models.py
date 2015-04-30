@@ -5,7 +5,24 @@ __all__ = ['AlgoliaIndex']
 
 
 def get_model_identifier(model):
-    """Returns a model identifier string like : app.Model"""
+    """Returns a model identifier string like : app.Model
+
+    Tests:
+        >>> get_model_identifier(AlgoliaIndex)
+        'algolia.AlgoliaIndex'
+
+        >>> from django.contrib.auth.models import User
+        >>> get_model_identifier(User)
+        'auth.User'
+
+        >>> get_model_identifier(object)
+        Traceback (most recent call last):
+        AttributeError: type object 'object' has no attribute '_meta'
+
+        >>> get_model_identifier()
+        Traceback (most recent call last):
+        TypeError: get_model_identifier() takes exactly 1 argument (0 given)
+    """
     return '{0}.{1}'.format(model._meta.app_label, model.__name__)
 
 
@@ -13,6 +30,21 @@ def get_instance_identifier(instance):
     """
     Returns an instance identifier string like app.Model.X
     where X is primary key of instance
+
+    Tests:
+        >>> instance = AlgoliaIndex()
+        >>> instance.pk = 42
+        >>> get_instance_identifier(instance)
+        'algolia.AlgoliaIndex.42'
+
+        >>> wrong_instance = object()
+        >>> get_instance_identifier(wrong_instance)
+        Traceback (most recent call last):
+        AttributeError: type object 'object' has no attribute '_meta'
+
+        >>> get_instance_identifier()
+        Traceback (most recent call last):
+        TypeError: get_instance_identifier() takes exactly 1 argument (0 given)
     """
     model_identifier = get_model_identifier(instance.__class__)
     return '{0}.{1}'.format(model_identifier, instance.pk)

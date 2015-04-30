@@ -12,11 +12,14 @@ __all__ = ['RealtimeSignalProcessor']
 class BaseSignalProcessor(object):
     """Abstract base class for Algolia signal processing"""
 
-    def __init__(self):
+    def __init__(self, indexer=None):
         """
         Loads Algolia settings and its indexer before to run the signal setup.
         """
-        self.indexer = AlgoliaIndexer()
+        if indexer:
+            self.indexer = indexer
+        else:
+            self.indexer = AlgoliaIndexer()
 
         if self.indexer.is_valid:
             if not self.indexer.configs.get('TEST_MODE', False):

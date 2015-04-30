@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import warnings
 
+from django.conf import settings
 from django.db.models import get_models
 from django.core.exceptions import ImproperlyConfigured
 
 from algoliasearch import algoliasearch
 
-from .utils import get_settings, get_instance_fields, is_algolia_managed
+from .utils import get_instance_fields, is_algolia_managed
 from .models import AlgoliaIndex
 
 __all__ = ['AlgoliaIndexer']
@@ -48,9 +49,13 @@ class AlgoliaIndexer(object):
         u'page': 0,
     }
 
-    def __init__(self):
+    def __init__(self, configs=None):
         """Loads Algolia settings, check settings and loads algolia client"""
-        self.configs = get_settings()
+        if configs:
+            self.configs = configs
+        else:
+            self.configs = getattr(settings, 'ALGOLIA', {})
+
         quiet = self.configs.get('QUIET', False) or self.configs.get('TEST_MODE', False)
         self.check_settings(quiet)
         self.get_client()
@@ -92,10 +97,10 @@ class AlgoliaIndexer(object):
         """Useful to dissociate the production indexes and the test indexes
 
         Use:
-        >>> instance = Model()
-        >>> get_index(instance)
-        >>> get_index(model=Model)
-        >>> get_index(index_name='MyAlgoliaIndex')
+            instance = Model()
+            get_index(instance)
+            get_index(model=Model)
+            get_index(index_name='MyAlgoliaIndex')
         """
         if not index_name:
             index_name = self._get_index_name(instance, model)
@@ -115,8 +120,8 @@ class AlgoliaIndexer(object):
             https://github.com/algolia/algoliasearch-client-python#search
 
         Use:
-        >>> indexer = AlgoliaIndexer()
-        >>> response = indexer.search(School, 'Hardvard')
+            indexer = AlgoliaIndexer()
+            response = indexer.search(School, 'Hardvard')
 
         Note that you can specify all parameters which you can specify
         to algolia's "search" function.
