@@ -1,0 +1,10 @@
+site_name: Django Algolia
+site_description: Synchronize your models with the Algolia API for easier and faster searches
+
+repo_url: https://github.com/Kmaschta/django-algolia
+
+theme_dir: docs_theme
+
+pages:
+ - ['index.md', 'Home']
+ - ['configuration.md', 'Configuration']

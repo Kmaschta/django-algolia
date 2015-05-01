@@ -1,10 +1,14 @@
-# django-algolia
-Synchronize your models with the Algolia API for easier and faster searches.
+# What is Django-Algolia ?
 
-=> [Documentation](http://django-algolia.readthedocs.org/en/latest/) 
+Django-Algolia helps you to synchronize your models with the [Algolia](https://www.algolia.com/)'s API and makes your search or autocomplete system easier.
 
-<a href="http://django-algolia.readthedocs.org/en/latest/" target="_blank"><img src='https://readthedocs.org/projects/django-algolia/badge/?version=latest' alt='Documentation Status' /></a>
-<a href="https://travis-ci.org/Kmaschta/django-algolia" target="_blank"><img src="https://travis-ci.org/Kmaschta/django-algolia.svg?branch=master" alt='Travis CI Status' /></a>
+## Algolia
+
+In their own words:
+
+> A powerful API built for developers, Algolia delivers relevant results in your mobile apps and websites from the first keystroke.
+
+This django app has been built to connect to Algolia API and you have to create an account on their website if you want to use it.
 
 # Compatibilities & Requirements
 
@@ -20,7 +24,7 @@ Synchronize your models with the Algolia API for easier and faster searches.
 
 The compatibility to the latest versions are planned, you can participate if you want : Feel free to [open an issue](https://github.com/Kmaschta/django-algolia/issues/new).
 
-# TL;DR
+# TL;DR - Getting started
 
 - Install the app:
 ```bash

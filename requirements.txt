@@ -1,2 +1,11 @@
-Django==1.6
+# Functional requirements
+Django>=1.6
 algoliasearch>=1.5.2
+South>=1.0.2
+
+# Test requirements
+pytest>=2.7.0
+flake8>=2.4.0
+
+# Documentation requirements
+mkdocs>=0.12.2

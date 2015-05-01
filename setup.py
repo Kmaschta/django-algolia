@@ -14,18 +14,12 @@ setup(
 
     packages=find_packages(),
     install_requires=[
-        'Django == 1.6',
-        'algoliasearch >= 1.5.2',
+        'Django==1.6',
+        'algoliasearch>=1.5.2',
     ],
 
     author='Kmaschta',
     author_email='kmaschta@gmail.com',
-
-    include_package_data=False,
-    zip_safe=False,
-    package_data={
-        '': ['README.md', 'LICENSE', 'requirements.txt'],
-    },
 
     # https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
