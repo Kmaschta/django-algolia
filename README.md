@@ -1,5 +1,10 @@
 # django-algolia
-Synchronize your models with the Algolia API for easier and faster searches
+Synchronize your models with the Algolia API for easier and faster searches.
+
+=> [Documentation](https://readthedocs.org/projects/django-algolia/?badge=latest) 
+
+<img src='https://readthedocs.org/projects/django-algolia/badge/?version=latest' alt='Documentation Status' />
+<img src="https://travis-ci.org/Kmaschta/django-algolia.svg?branch=develop" alt='Travis CI Status' />
 
 # Compatibilities & Requirements
 
