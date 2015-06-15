@@ -6,7 +6,7 @@
 __version__ = '0.1'
 
 from .utils import get_signal_processor_class
-from .backends import AlgoliaIndexer
+from .indexer import AlgoliaIndexer
 
 __all__ = ['AlgoliaIndexer']
 

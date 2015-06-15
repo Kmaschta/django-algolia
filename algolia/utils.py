@@ -116,6 +116,10 @@ def is_algolia_managed(instance):
         >>> is_algolia_managed(managed_instance)
         True
 
+        >>> class NotManagedClass(object): ALGOLIA_INDEX_FIELDS = []
+        >>> is_algolia_managed(NotManagedClass)
+        False
+
         >>> random_stuff = object()
         >>> is_algolia_managed(random_stuff)
         False
@@ -124,4 +128,47 @@ def is_algolia_managed(instance):
         Traceback (most recent call last):
         TypeError: is_algolia_managed() takes exactly 1 argument (0 given)
     """
-    return hasattr(instance, 'ALGOLIA_INDEX_FIELDS')
+    return hasattr(instance, 'ALGOLIA_INDEX_FIELDS') and bool(get_instance_fields(instance))
+
+
+def get_instance_settings(instance):
+    """Returns settings of an instance algolia managed
+
+    Tests:
+        >>> class ManagedClass(object): ALGOLIA_INDEX_FIELDS = ['some', 'fields']
+        >>> managed_instance = ManagedClass()
+        >>> get_instance_settings(ManagedClass)
+        {'index_settings': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
+        >>> get_instance_settings(managed_instance)
+        {'index_settings': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
+
+        >>> class OtherClass(object): ALGOLIA_INDEX_SETTINGS = {'some': 'settings'}
+        >>> other_instance = OtherClass()
+        >>> get_instance_settings(OtherClass)
+        {'some': 'settings'}
+        >>> get_instance_settings(other_instance)
+        {'some': 'settings'}
+
+        >>> class RandomClass(object): pass
+        >>> get_instance_settings(RandomClass)
+        {'index_settings': {'attributesToIndex': ['']}, 'query_default_params': {}}
+
+        >>> get_instance_settings()
+        Traceback (most recent call last):
+        TypeError: get_instance_settings() takes exactly 1 argument (0 given)
+    """
+
+    default = {
+        # See: https://www.algolia.com/doc/python#Settings
+        'index_settings': {
+            'attributesToIndex': [','.join(get_instance_fields(instance))],
+        },
+        # See: https://www.algolia.com/doc/python#QueryParameters
+        # See: https://www.algolia.com/doc/python#Sorting
+        # See: https://www.algolia.com/doc/python#Filtering
+        # See: https://www.algolia.com/doc/python#Faceting
+        # See: https://www.algolia.com/doc/python#GeoSearch
+        'query_default_params': {},
+    }
+
+    return getattr(instance, 'ALGOLIA_INDEX_SETTINGS', default)

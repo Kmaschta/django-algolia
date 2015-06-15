@@ -4,7 +4,7 @@ import warnings
 from django.db import models
 
 from .utils import is_algolia_managed
-from .backends import AlgoliaIndexer
+from .indexer import AlgoliaIndexer
 
 __all__ = ['RealtimeSignalProcessor']
 
