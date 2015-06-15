@@ -159,19 +159,14 @@ class AlgoliaIndexer(object):
             except ValueError:
                 message = ('{0}.{1} "{2}" can not be cast into a string '
                            'to be stored to Algolia Index')
-
-                warnings.warn(message.format(
-                    instance.__class__.__name__,
-                    field,
-                    value,
-                ))
+                warnings.warn(message.format(instance.__class__.__name__,
+                                             field, value))
 
             kwargs[field] = value
 
         index, algolia_index = self.get_or_create_algolia_index(instance)
-        object_id = algolia_index.id
 
-        kwargs['objectID'] = object_id
+        kwargs['objectID'] = algolia_index.id
         kwargs['__unicode__'] = unicode(instance)
 
         if created:
@@ -187,20 +182,27 @@ class AlgoliaIndexer(object):
             return index.delete_object(algolia_index.id)
         return None
 
-    def clear_index(self, index_name):
-        """Deletes all instances from specified index"""
-        return self.get_index(index_name=index_name).clear_index()
+    def is_indexed_by(self, index, model):
+        if not is_algolia_managed(model):
+            return False
+
+        model_index = self.get_index(model=model)
+        return model_index.index_name == index.index_name
+
+    def get_models(self, index):
+        """Get models for a given index"""
+        return [model for model in get_models() if self.is_indexed_by(index, model)]
 
     def rebuild_index(self, index):
-        """Clears index and reconstructs it from all associated models"""
+        """Clears index and reconstructs it from all associated models
+
+        Be careful, this process can be very long."""
         index.clear_index()
         index_name = index.index_name
 
         queryset = AlgoliaIndex.objects.filter(index=index_name)
         queryset.delete()
 
-        for model in get_models():
-            is_same_index = self.get_index(model=model).index_name == index.index_name
-            if is_algolia_managed(model) and is_same_index:
-                for instance in model.objects.all():
-                    self.save(instance)
+        for model in self.get_models(index):
+            for instance in model.objects.all():
+                self.save(instance)
