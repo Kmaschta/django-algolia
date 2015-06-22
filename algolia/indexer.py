@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 from algoliasearch import algoliasearch
 
-from .utils import get_instance_fields, is_algolia_managed
+from .utils import get_instance_fields, is_algolia_managed, get_instance_settings
 from .models import AlgoliaIndex
 
 __all__ = ['AlgoliaIndexer']
@@ -204,5 +204,12 @@ class AlgoliaIndexer(object):
         queryset.delete()
 
         for model in self.get_models(index):
+            instance_saved = False
             for instance in model.objects.all():
                 self.save(instance)
+                instance_saved = True
+
+            if instance_saved:
+                model_index = self.get_index(model=model)
+                index_sets = get_instance_settings(model)
+                model_index.set_settings(index_sets.get('index_settings'))
