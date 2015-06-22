@@ -3,7 +3,7 @@ import pytest
 
 from django.core.exceptions import ImproperlyConfigured
 
-from algolia import AlgoliaIndexer
+from yupeekapi.libs.algolia import AlgoliaIndexer
 
 
 @pytest.fixture()

@@ -138,11 +138,11 @@ def get_instance_settings(instance):
         >>> class ManagedClass(object): ALGOLIA_INDEX_FIELDS = ['some', 'fields']
         >>> managed_instance = ManagedClass()
         >>> get_instance_settings(ManagedClass)
-        {'index_settings': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
+        {'indexing': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
         >>> get_instance_settings(managed_instance)
-        {'index_settings': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
+        {'indexing': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
 
-        >>> class OtherClass(object): ALGOLIA_INDEX_SETTINGS = {'some': 'settings'}
+        >>> class OtherClass(object): ALGOLIA_indexing = {'some': 'settings'}
         >>> other_instance = OtherClass()
         >>> get_instance_settings(OtherClass)
         {'some': 'settings'}
@@ -151,7 +151,7 @@ def get_instance_settings(instance):
 
         >>> class RandomClass(object): pass
         >>> get_instance_settings(RandomClass)
-        {'index_settings': {'attributesToIndex': ['']}, 'query_default_params': {}}
+        {'indexing': {'attributesToIndex': ['']}, 'query_default_params': {}}
 
         >>> get_instance_settings()
         Traceback (most recent call last):
@@ -160,7 +160,7 @@ def get_instance_settings(instance):
 
     default = {
         # See: https://www.algolia.com/doc/python#Settings
-        'index_settings': {
+        'indexing': {
             'attributesToIndex': [','.join(get_instance_fields(instance))],
         },
         # See: https://www.algolia.com/doc/python#QueryParameters

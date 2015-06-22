@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db.models.loading import get_model
 from django.core.management.base import BaseCommand, CommandError
 
-from algolia import AlgoliaIndexer
+from yupeekapi.libs.algolia import AlgoliaIndexer
 
 
 class Command(BaseCommand):
