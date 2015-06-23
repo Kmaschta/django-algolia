@@ -159,7 +159,10 @@ def get_instance_settings(instance):
         TypeError: get_instance_settings() takes exactly 1 argument (0 given)
     """
 
-    default = {
+    if hasattr(instance, 'ALGOLIA_INDEX_SETTINGS'):
+        return getattr(instance, 'ALGOLIA_INDEX_SETTINGS')
+
+    return {
         # See: https://www.algolia.com/doc/python#Settings
         'indexing': {
             'attributesToIndex': [','.join(get_instance_fields(instance))],
@@ -171,8 +174,6 @@ def get_instance_settings(instance):
         # See: https://www.algolia.com/doc/python#GeoSearch
         'query_default_params': {},
     }
-
-    return getattr(instance, 'ALGOLIA_INDEX_SETTINGS', default)
 
 # Algolia documentation example
 test_algolia_response = {

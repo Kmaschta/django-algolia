@@ -123,17 +123,31 @@ class AlgoliaIndexer(object):
         kwargs = {}
 
         for field in fields:
-            value = getattr(instance, field, None)
 
-            try:
-                value = unicode(value)
-            except ValueError:
-                message = ('{0}.{1} "{2}" can not be cast into a string '
-                           'to be stored to Algolia Index')
-                warnings.warn(message.format(instance.__class__.__name__,
-                                             field, value))
+            # In this way, user can set himself the value of field
+            if type(field) in (tuple, list):
+                if len(field) == 3:
+                    field_name, func, key = field
+                else:
+                    field_name = key = field[0]
+                    func = field[1]
 
-            kwargs[field] = value
+                kwargs[key] = func(instance, getattr(instance, field_name, None))
+
+            # Otherwise, the field will be stringify
+            # @TODO Improve seralization, with check type of model fields
+            else:
+                value = getattr(instance, field, None)
+
+                try:
+                    value = unicode(value)
+                except ValueError:
+                    message = ('{0}.{1} "{2}" can not be cast into a string '
+                               'to be stored to Algolia Index')
+                    warnings.warn(message.format(instance.__class__.__name__,
+                                                 field, value))
+
+                kwargs[field] = value
 
         return kwargs
 
