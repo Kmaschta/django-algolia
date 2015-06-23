@@ -5,7 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save, pre_delete
 
-from yupeekapi.libs.algolia.signals import BaseSignalProcessor, RealtimeSignalProcessor
+from .fixtures import BaseSignalProcessor, RealtimeSignalProcessor
 
 
 def assert_true(*args, **kwars):

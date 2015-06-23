@@ -3,25 +3,7 @@ import pytest
 
 from django.core.exceptions import ImproperlyConfigured
 
-from yupeekapi.libs.algolia import AlgoliaIndexer
-
-
-@pytest.fixture()
-def configs_success():
-    return {
-        'API_KEY': 'some-api-key',
-        'API_SECRET': 'some-api-secret',
-    }
-
-
-@pytest.fixture()
-def configs_wrong():
-    return {'QUIET': False}
-
-
-@pytest.fixture()
-def indexer(configs_success):
-    return AlgoliaIndexer(configs_success)
+from .fixtures import configs_success, configs_wrong, indexer, AlgoliaIndexer
 
 
 def test_init_success(indexer, configs_success):
@@ -74,11 +56,3 @@ def test_get_index_name(indexer):
     indexer.configs['SUFFIX_MY_INDEX'] = False
     assert indexer._get_index_name(instance, with_suffix=False) == 'MyModel'
     assert indexer._get_index_name(model=MyModel, with_suffix=False) == 'MyModel'
-
-
-def test_search(indexer):
-    class MyModel():
-        pass
-
-    indexer.configs['TEST_MODE'] = True
-    assert indexer.search(MyModel, 'test') == indexer.test_response

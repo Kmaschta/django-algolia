@@ -6,9 +6,9 @@
 __version__ = '0.1'
 
 from .utils import get_signal_processor_class
-from .indexer import AlgoliaIndexer
+from .search import search
 
-__all__ = ['AlgoliaIndexer']
+__all__ = ['search']
 
 signal_processor_class = get_signal_processor_class()
 signal_processor = signal_processor_class()

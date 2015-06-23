@@ -4,7 +4,8 @@ import warnings
 from django.conf import settings
 from django.utils import importlib
 
-__all__ = ['get_signal_processor_class', 'is_algolia_managed']
+__all__ = ['get_signal_processor_class', 'is_algolia_managed',
+           'get_instance_fields', 'get_instance_settings']
 
 if not settings.configured:
     settings.configure(DEBUG=True, ALGOLIA={'QUIET': True})
@@ -138,11 +139,11 @@ def get_instance_settings(instance):
         >>> class ManagedClass(object): ALGOLIA_INDEX_FIELDS = ['some', 'fields']
         >>> managed_instance = ManagedClass()
         >>> get_instance_settings(ManagedClass)
-        {'indexing': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
+        {'query_default_params': {}, 'indexing': {'attributesToIndex': ['some,fields']}}
         >>> get_instance_settings(managed_instance)
-        {'indexing': {'attributesToIndex': ['some,fields']}, 'query_default_params': {}}
+        {'query_default_params': {}, 'indexing': {'attributesToIndex': ['some,fields']}}
 
-        >>> class OtherClass(object): ALGOLIA_indexing = {'some': 'settings'}
+        >>> class OtherClass(object): ALGOLIA_INDEX_SETTINGS = {'some': 'settings'}
         >>> other_instance = OtherClass()
         >>> get_instance_settings(OtherClass)
         {'some': 'settings'}
@@ -151,7 +152,7 @@ def get_instance_settings(instance):
 
         >>> class RandomClass(object): pass
         >>> get_instance_settings(RandomClass)
-        {'indexing': {'attributesToIndex': ['']}, 'query_default_params': {}}
+        {'query_default_params': {}, 'indexing': {'attributesToIndex': ['']}}
 
         >>> get_instance_settings()
         Traceback (most recent call last):
@@ -172,3 +173,64 @@ def get_instance_settings(instance):
     }
 
     return getattr(instance, 'ALGOLIA_INDEX_SETTINGS', default)
+
+# Algolia documentation example
+test_algolia_response = {
+    # array of matched hits
+    "hits": [
+        {
+            "objectID": "1",
+            "id": 42,
+            "name": "Jim",
+            # [... other attributes ...]
+            "_highlightResult": {
+                # [...]
+                # See "Highlighting" section
+            },
+        },
+        {
+            "objectID": "2",
+            "id": 43,
+            "name": "Jimmie",
+            # [... other attributes ...]
+            "_highlightResult": {
+                # [...]
+                # See "Highlighting" section
+            },
+        },
+    ],
+    # current page number
+    "page": 0,
+    # total number of matched hits in the index
+    "nbHits": 2,
+    # total number of accessible pages
+    "nbPages": 1,
+    # number of hits per page
+    "hitsPerPage": 20,
+    # backend processing time (in milliseconds)
+    "processingTimeMS": 1,
+    # the computed facets, see "Faceting" section
+    "facets": {
+        "city": {
+            "San Francisco": 1,  # associated counts
+            "NYC": 1
+        },
+        "title": {
+            "CEO": 2
+        },
+        # [... other facets ...]
+    },
+    # numeric facet stats computed on the result set, see "Faceting" section
+    "facets_stats": {
+        "age": {
+            "min": 21,   # minimum value
+            "max": 42,   # maximum value
+            "avg": 31.5  # average value
+        },
+        # [... other stats ...]
+    },
+    # full-text query
+    "query": "jim",
+    # query parameters
+    "params": "query=jim",
+}

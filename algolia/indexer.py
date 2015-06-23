@@ -7,8 +7,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 from algoliasearch import algoliasearch
 
-from .utils import get_instance_fields, is_algolia_managed, get_instance_settings
 from .models import AlgoliaIndex
+from .utils import (get_instance_fields, is_algolia_managed, get_instance_settings,
+                    test_algolia_response)
 
 __all__ = ['AlgoliaIndexer']
 
@@ -37,17 +38,7 @@ class AlgoliaIndexer(object):
     is_valid = False
 
     # Returned content for test mode
-    test_response = {
-        u'hits': [],
-        u'processingTimeMS': 1,
-        u'nbHits': 0,
-        u'hitsPerPage': 20,
-        u'params':
-        u'query=',
-        u'nbPages': 0,
-        u'query': u'',
-        u'page': 0,
-    }
+    test_response = test_algolia_response
 
     def __init__(self, configs=None):
         """Loads Algolia settings, check settings and loads algolia client"""
@@ -113,26 +104,6 @@ class AlgoliaIndexer(object):
             index_name = self._get_index_name(instance, model, with_suffix=with_suffix)
 
         return self.get_client().init_index(index_name)
-
-    def search(self, model, query, *args, **kwargs):
-        """
-        Makes a query to Algolia API and return the response as a dict
-
-        See:
-            https://github.com/algolia/algoliasearch-client-python#search
-
-        Use:
-            indexer = AlgoliaIndexer()
-            response = indexer.search(School, 'Hardvard')
-
-        Note that you can specify all parameters which you can specify
-        to algolia's "search" function.
-        """
-        if self.configs.get('TEST_MODE', False):
-            return self.test_response
-
-        index = self.get_index(model=model)
-        return index.search(query, *args, **kwargs)
 
     def get_algolia_index(self, instance):
         """Returns the index of a specific instance"""
@@ -212,9 +183,10 @@ class AlgoliaIndexer(object):
     def save(self, instances, created=False):
         """Stores or updates index of a model on Algolia API"""
         try:
-            _ = [item for item in instances]
+            instances = [item for item in instances]
             self.save_list(instances)
-        except TypeError as e:
+        except TypeError:
+            # If instances is not iterable
             self.update_or_create(instances, created=created)
 
     def delete(self, instance):
@@ -237,6 +209,7 @@ class AlgoliaIndexer(object):
         return [model for model in get_models() if self.is_indexed_by(index, model)]
 
     def delete_index(self, index):
+        """Deletes an index and its corresponding datas in DB"""
         index.clear_index()
         index_name = index.index_name
 
