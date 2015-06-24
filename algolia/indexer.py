@@ -7,8 +7,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 from algoliasearch import algoliasearch
 
-from .utils import get_instance_fields, is_algolia_managed, get_instance_settings
 from .models import AlgoliaIndex
+from .utils import (get_instance_fields, is_algolia_managed, get_instance_settings,
+                    test_algolia_response)
 
 __all__ = ['AlgoliaIndexer']
 
@@ -37,17 +38,7 @@ class AlgoliaIndexer(object):
     is_valid = False
 
     # Returned content for test mode
-    test_response = {
-        u'hits': [],
-        u'processingTimeMS': 1,
-        u'nbHits': 0,
-        u'hitsPerPage': 20,
-        u'params':
-        u'query=',
-        u'nbPages': 0,
-        u'query': u'',
-        u'page': 0,
-    }
+    test_response = test_algolia_response
 
     def __init__(self, configs=None):
         """Loads Algolia settings, check settings and loads algolia client"""
@@ -114,26 +105,6 @@ class AlgoliaIndexer(object):
 
         return self.get_client().init_index(index_name)
 
-    def search(self, model, query, *args, **kwargs):
-        """
-        Makes a query to Algolia API and return the response as a dict
-
-        See:
-            https://github.com/algolia/algoliasearch-client-python#search
-
-        Use:
-            indexer = AlgoliaIndexer()
-            response = indexer.search(School, 'Hardvard')
-
-        Note that you can specify all parameters which you can specify
-        to algolia's "search" function.
-        """
-        if self.configs.get('TEST_MODE', False):
-            return self.test_response
-
-        index = self.get_index(model=model)
-        return index.search(query, *args, **kwargs)
-
     def get_algolia_index(self, instance):
         """Returns the index of a specific instance"""
         index = self.get_index(instance=instance)
@@ -146,33 +117,91 @@ class AlgoliaIndexer(object):
             algolia_index = AlgoliaIndex.create_object(index.index_name, instance)
         return index, algolia_index
 
-    def save(self, instance, created=False):
-        """Stores or updates index of a model on Algolia API"""
+    def get_instance_values(self, instance):
+        """Retrieve instance values"""
         fields = get_instance_fields(instance)
         kwargs = {}
 
         for field in fields:
-            value = getattr(instance, field, None)
 
-            try:
-                value = unicode(value)
-            except ValueError:
-                message = ('{0}.{1} "{2}" can not be cast into a string '
-                           'to be stored to Algolia Index')
-                warnings.warn(message.format(instance.__class__.__name__,
-                                             field, value))
+            # In this way, user can set himself the value of field
+            if type(field) in (tuple, list):
+                if len(field) == 3:
+                    field_name, func, key = field
+                else:
+                    field_name = key = field[0]
+                    func = field[1]
 
-            kwargs[field] = value
+                kwargs[key] = func(instance, getattr(instance, field_name, None))
+
+            # Otherwise, the field will be stringify
+            # @TODO Improve seralization, with check type of model fields
+            else:
+                value = getattr(instance, field, None)
+
+                try:
+                    value = unicode(value)
+                except ValueError:
+                    message = ('{0}.{1} "{2}" can not be cast into a string '
+                               'to be stored to Algolia Index')
+                    warnings.warn(message.format(instance.__class__.__name__,
+                                                 field, value))
+
+                kwargs[field] = value
+
+        return kwargs
+
+    def update_or_create(self, instance, created=True, fake=False):
+        kwargs = self.get_instance_values(instance)
 
         index, algolia_index = self.get_or_create_algolia_index(instance)
 
         kwargs['objectID'] = algolia_index.id
         kwargs['__unicode__'] = unicode(instance)
 
+        if fake:
+            return kwargs
+
         if created:
             return index.save_object(kwargs)
         else:
             return index.partial_update_object(kwargs)
+
+    def save_list(self, instances):
+        """Send list of item ot Algolia API by batch of 10000 items"""
+        indexes = {}
+
+        # Store index and values to a list
+        for instance in instances:
+            index = self.get_index(instance)
+            index_name = index.index_name
+            values = self.update_or_create(instance, fake=True)
+
+            if index_name in indexes.keys():
+                indexes.get(index_name)['values'].append(values)
+            else:
+                indexes[index_name] = {'index': index, 'values': [values]}
+
+        # For each index, send their values by batch of 10000 items
+        for index_name, item in indexes.items():
+            index = item['index']
+            instances_values = item['values']
+            chunk = []
+
+            for values in instances_values:
+                chunk.append(values)
+                if chunk == indexes[index_name]['values'] or len(chunk) == 10000:
+                    index.save_objects(chunk)
+                    chunk = []
+
+    def save(self, instances, created=False):
+        """Stores or updates index of a model on Algolia API"""
+        try:
+            instances = [item for item in instances]
+            self.save_list(instances)
+        except TypeError:
+            # If instances is not iterable
+            self.update_or_create(instances, created=created)
 
     def delete(self, instance):
         """Removes index of a model on Algolia API"""
@@ -193,23 +222,23 @@ class AlgoliaIndexer(object):
         """Get models for a given index"""
         return [model for model in get_models() if self.is_indexed_by(index, model)]
 
-    def rebuild_index(self, index):
-        """Clears index and reconstructs it from all associated models
-
-        Be careful, this process can be very long."""
+    def delete_index(self, index):
+        """Deletes an index and its corresponding datas in DB"""
         index.clear_index()
         index_name = index.index_name
 
         queryset = AlgoliaIndex.objects.filter(index=index_name)
         queryset.delete()
 
-        for model in self.get_models(index):
-            instance_saved = False
-            for instance in model.objects.all():
-                self.save(instance)
-                instance_saved = True
+    def rebuild_index(self, index):
+        """Clears index and reconstructs it from all associated models
 
-            if instance_saved:
-                model_index = self.get_index(model=model)
-                index_sets = get_instance_settings(model)
-                model_index.set_settings(index_sets.get('index_settings'))
+        Be careful, this process can be very long."""
+        self.delete_index(index)
+
+        for model in self.get_models(index):
+            model_index = self.get_index(model=model)
+            index_sets = get_instance_settings(model)
+            model_index.set_settings(index_sets.get('indexing'))
+
+            self.save([instance for instance in model.objects.all()])
