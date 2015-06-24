@@ -32,7 +32,7 @@ def test_algolia_result(indexer):
     assert result.hits == raw.get('hits')
     assert result.count == raw.get('nbHits')
     assert result.page == raw.get('page') + 1
-    assert result.nb_pages == raw.get('nbPages') + 1
+    assert result.nb_pages == raw.get('nbPages')
     assert result.facets == raw.get('facets')
     assert result.facets_stats == raw.get('facets_stats')
 

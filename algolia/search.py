@@ -47,7 +47,7 @@ class AlgoliaResult(object):
 
     @property
     def nb_pages(self):
-        return self.raw.get('nbPages', 1) + 1
+        return self.raw.get('nbPages', 1)
 
     @property
     def facets(self):
@@ -72,26 +72,39 @@ class AlgoliaResult(object):
     def __repr__(self):
         return unicode(self)
 
-    def next(self):
-        page = self.query_params.get('page', 0)
-        page += 1
-
-        if page >= self.nb_pages:
-            raise StopIteration
-
-        query_params = self.query_params
-        query_params.update({'page': page})
-
-        raw = make_request(self.model, self.query, query_params,
-                           indexer=self.indexer)
+    def copy(self, raw=None, query=None, query_params=None):
+        if not raw:
+            raw = self.raw
+        if not query:
+            query = self.query
+        if not query_params:
+            query_params = self.query_params
 
         return AlgoliaResult(
             self.model,
             raw,
-            self.query,
+            query,
             query_params,
             indexer=self.indexer,
         )
+
+    def get_page(self, page, query_params=None):
+        if not query_params:
+            query_params = self.query_params
+        query_params.update({'page': page - 1})
+
+        raw = make_request(self.model, self.query, query_params,
+                           indexer=self.indexer)
+
+        return self.copy(raw, query_params=query_params)
+
+    def next(self):
+        page = self.page + 1
+
+        if page > self.nb_pages:
+            raise StopIteration
+
+        return self.get_page(page)
 
 
 def search(model, query='', params={}, page=1, indexer=None, *args, **kwargs):

@@ -205,7 +205,7 @@ test_algolia_response = {
     # total number of matched hits in the index
     "nbHits": 2,
     # total number of accessible pages
-    "nbPages": 1,
+    "nbPages": 2,
     # number of hits per page
     "hitsPerPage": 20,
     # backend processing time (in milliseconds)
