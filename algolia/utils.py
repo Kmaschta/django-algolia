@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import warnings
 
 from django.conf import settings
@@ -55,8 +56,8 @@ def get_signal_processor_class(algolia_settings=None):
         <class 'algolia.signals.RealtimeSignalProcessor'>
 
         >>> wrong = {'SIGNAL_PROCESSOR': 'some.impossible.to.find.class'}
-        >>> get_signal_processor_class(wrong)
-        <type 'object'>
+        >>> isinstance(get_signal_processor_class(wrong), object)
+        True
 
         >>> get_signal_processor_class()
         <class 'algolia.signals.RealtimeSignalProcessor'>
@@ -83,21 +84,21 @@ def get_instance_fields(instance):
     Tests:
         >>> class ManagedClass(object): ALGOLIA_INDEX_FIELDS = ['some', 'fields']
         >>> managed_instance = ManagedClass()
-        >>> get_instance_fields(ManagedClass)
-        ['some', 'fields']
-        >>> get_instance_fields(managed_instance)
-        ['some', 'fields']
+        >>> ['some', 'fields'] == get_instance_fields(ManagedClass)
+        True
+        >>> ['some', 'fields'] == get_instance_fields(managed_instance)
+        True
 
         >>> class AnotherGoodClass(object): ALGOLIA_INDEX_FIELDS = ('other', 'attrs')
         >>> another_good = AnotherGoodClass()
-        >>> get_instance_fields(AnotherGoodClass)
-        ('other', 'attrs')
-        >>> get_instance_fields(another_good)
-        ('other', 'attrs')
+        >>> ('other', 'attrs') == get_instance_fields(AnotherGoodClass)
+        True
+        >>> ('other', 'attrs') == get_instance_fields(another_good)
+        True
 
         >>> random_stuff = object()
-        >>> get_instance_fields(random_stuff)
-        []
+        >>> [] == get_instance_fields(random_stuff)
+        True
 
         >>> get_instance_fields()
         Traceback (most recent call last):
@@ -138,21 +139,23 @@ def get_instance_settings(instance):
     Tests:
         >>> class ManagedClass(object): ALGOLIA_INDEX_FIELDS = ['some', 'fields']
         >>> managed_instance = ManagedClass()
-        >>> get_instance_settings(ManagedClass)
-        {'query_default_params': {}, 'indexing': {'attributesToIndex': ['some,fields']}}
-        >>> get_instance_settings(managed_instance)
-        {'query_default_params': {}, 'indexing': {'attributesToIndex': ['some,fields']}}
+        >>> r = {'query_default_params': {}, 'indexing': {'attributesToIndex': ['some,fields']}}
+        >>> r == get_instance_settings(ManagedClass)
+        True
+        >>> r == get_instance_settings(managed_instance)
+        True
 
         >>> class OtherClass(object): ALGOLIA_INDEX_SETTINGS = {'some': 'settings'}
         >>> other_instance = OtherClass()
-        >>> get_instance_settings(OtherClass)
-        {'some': 'settings'}
-        >>> get_instance_settings(other_instance)
-        {'some': 'settings'}
+        >>> {'some': 'settings'} == get_instance_settings(OtherClass)
+        True
+        >>> {'some': 'settings'} == get_instance_settings(other_instance)
+        True
 
         >>> class RandomClass(object): pass
-        >>> get_instance_settings(RandomClass)
-        {'query_default_params': {}, 'indexing': {'attributesToIndex': ['']}}
+        >>> r = {'query_default_params': {}, 'indexing': {'attributesToIndex': ['']}}
+        >>> r == get_instance_settings(RandomClass)
+        True
 
         >>> get_instance_settings()
         Traceback (most recent call last):

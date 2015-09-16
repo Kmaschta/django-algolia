@@ -16,11 +16,11 @@ This django app has been built to connect to Algolia API and you have to create 
 
 |Language  | 2.7 | 3.4  |
 |:--------:|:---:|:----:|
-|**Python**| V   | X    |
+|**Python**| V   | V    |
 
 |Framework | 1.6 | 1.7  | 1.8 |
 |:--------:|:---:|:----:|:---:|
-|**Django**| V   | X    | X   |
+|**Django**| V   | V    | V   |
 
 The compatibility to the latest versions are planned, you can participate if you want : Feel free to [open an issue](https://github.com/Kmaschta/django-algolia/issues/new).
 
@@ -72,16 +72,16 @@ results = indexer.search(MyPony, 'Rainbow Dash')
 
 # results content
 {
-    u'hits': [
+    'hits': [
       {...}
     ],
-    u'processingTimeMS': 1,
-    u'nbHits': 0,
-    u'hitsPerPage': 20,
-    u'params':
-    u'query=Rainbow Dash',
-    u'nbPages': 0,
-    u'query': u'',
-    u'page': 0,
+    'processingTimeMS': 1,
+    'nbHits': 0,
+    'hitsPerPage': 20,
+    'params':
+    'query=Rainbow Dash',
+    'nbPages': 0,
+    'query': '',
+    'page': 0,
 }
 ```

@@ -54,6 +54,6 @@ Or if you have several settings file for different use case :
 
 ### TEST_MODE
 
-You can activate a test mode. If this is the case, Django-Algolia will no longer request the Algolia's API and when you'll do a search query, it will return a "test data" defined in the AlgoliaIndexer (actually empty).
+You can activate a test mode. If this is the case, Django-Algolia will no longer request the Algolia's API and when yo'll do a search query, it will return a "test data" defined in the AlgoliaIndexer (actually empty).
 
 Useful if you run unit tests or if you have an integration continue system.

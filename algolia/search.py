@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from .indexer import AlgoliaIndexer
 from .utils import get_instance_settings
 
@@ -66,11 +68,11 @@ class AlgoliaResult(object):
             'page': '{}/{}'.format(self.page, self.nb_pages),
         }
 
-    def __unicode__(self):
-        return u'AlgoliaResult({})'.format(self.__dict__)
+    def __str__(self):
+        return 'AlgoliaResult({})'.format(self.__dict__)
 
     def __repr__(self):
-        return unicode(self)
+        return str(self)
 
     def copy(self, raw=None, query=None, query_params=None):
         if not raw:

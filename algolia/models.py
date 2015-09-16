@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.db import models
 
 __all__ = ['AlgoliaIndex']
@@ -8,12 +10,12 @@ def get_model_identifier(model):
     """Returns a model identifier string like : app.Model
 
     Tests:
-        >>> get_model_identifier(AlgoliaIndex)
-        'algolia.AlgoliaIndex'
+        >>> 'algolia.AlgoliaIndex' == get_model_identifier(AlgoliaIndex)
+        True
 
         >>> from django.contrib.auth.models import User
-        >>> get_model_identifier(User)
-        'auth.User'
+        >>> 'auth.User' == get_model_identifier(User)
+        True
 
         >>> get_model_identifier(object)
         Traceback (most recent call last):
@@ -34,8 +36,8 @@ def get_instance_identifier(instance):
     Tests:
         >>> instance = AlgoliaIndex()
         >>> instance.pk = 42
-        >>> get_instance_identifier(instance)
-        'algolia.AlgoliaIndex.42'
+        >>> 'algolia.AlgoliaIndex.42' == get_instance_identifier(instance)
+        True
 
         >>> wrong_instance = object()
         >>> get_instance_identifier(wrong_instance)

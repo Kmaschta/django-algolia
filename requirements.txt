@@ -1,5 +1,4 @@
 # Functional requirements
-Django>=1.6
 algoliasearch>=1.5.2
 South>=1.0.2
 

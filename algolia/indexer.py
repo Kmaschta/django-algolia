@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import warnings
 
 from django.conf import settings
@@ -140,7 +141,7 @@ class AlgoliaIndexer(object):
                 value = getattr(instance, field, None)
 
                 try:
-                    value = unicode(value)
+                    value = str(value)
                 except ValueError:
                     message = ('{0}.{1} "{2}" can not be cast into a string '
                                'to be stored to Algolia Index')
@@ -157,7 +158,7 @@ class AlgoliaIndexer(object):
         index, algolia_index = self.get_or_create_algolia_index(instance)
 
         kwargs['objectID'] = algolia_index.id
-        kwargs['__unicode__'] = unicode(instance)
+        kwargs['__str__'] = str(instance)
 
         if fake:
             return kwargs

@@ -14,7 +14,7 @@ setup(
 
     packages=find_packages(),
     install_requires=[
-        'Django==1.6',
+        'Django>=1.6',
         'algoliasearch>=1.5.2',
     ],
 
@@ -23,11 +23,14 @@ setup(
 
     # https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Framework :: Django',
         'Framework :: Django :: 1.6',
+        'Framework :: Django :: 1.7',
+        'Framework :: Django :: 1.8',
         'License :: OSI Approved :: BSD License',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
