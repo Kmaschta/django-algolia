@@ -1,5 +1,6 @@
 # django-algolia
 Synchronize your models with the Algolia API for easier and faster searches.
+:warning: Be aware that this project is no longer maintained!
 
 => [Documentation](http://django-algolia.readthedocs.org/en/latest/) 
 
